@@ -145,8 +145,21 @@ void LogFormatter::init(){
         vec.push_back({nstr, "", 0});
     }
 }
+/**
+ *  %m---消息体
+ *  %p---level
+ *  %r---启动后的时间
+ *  。。。。
+ * ==> 做LogFormatterItem 的具体实例
+*/
+Class MessageFormatItem : public LogFormatter::FormatItem{
 
+};
 
+Class LevelFormatItem : public LogFormatter::FormatItem{
+public:
+    void     
+};
 
 
 
