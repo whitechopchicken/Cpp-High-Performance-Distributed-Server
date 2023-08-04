@@ -1,11 +1,14 @@
 #include "logger.h"
 #include <iostream>
 #include <string>
+#include <unordered_map>
+#include <functional>
+#include <time.h>
 
 namespace yy{
 
 //Logger 函数
-Logger::Logger(const std::string& name = "root")
+Logger::Logger(const std::string& name)
     :m_name(name),
     m_level(LogLevel::DEBUG){
         m_formatter.reset(new LogFormatter("%d{%Y-%m-%d %H:%M:%S}%T%t%T%N%T%F%T[%p]%T[%c]%T%f:%l%T%m%n"));
@@ -16,9 +19,11 @@ void Logger::log(LogLevel::Level level, LogEvent::ptr event){
         //MutexType::Lock lock(m_mutex);
         if(!m_appenders.empty()) {
             for(auto& i : m_appenders) {
+                //i->log(self, level, event);
                 i->log(self, level, event);
             }
         }else if(m_root) {
+            //m_root->log(level, event);
             m_root->log(level, event);
         }
     }
@@ -48,15 +53,17 @@ void Logger::addAppender(LogAppender::ptr appender){
 }
 void Logger::delAppender(LogAppender::ptr appender){
     //MutexType::Lock lock(m_mutex);
-    for(auto it = m_appenders.begin();
-            it != m_appenders.end(); ++it) {
+    for(auto it = m_appenders.begin();     //原来是 auto it ,这样it就是个迭代器
+            it != m_appenders.end(); 
+            ++it) {
+        //if(*it == appender) {
         if(*it == appender) {
             m_appenders.erase(it);
             break;
         }
     }
 }
-void Logger::clearAppenders(LogAppender::ptr appender){
+void Logger::clearAppenders(){
     //MutexType::Lock lock(m_mutex);
     m_appenders.clear();
 }
@@ -82,16 +89,15 @@ void Logger::setFormatter(const std::string& val){
     }
     setFormatter(new_val);  //调用传LogFormatter::ptr 的设置方法！ 学到了！
 }
-std::string Logger::toYamlString(){
-    /*待完成*/
-}
+// std::string Logger::toYamlString(){
+//     /*待完成*/
+// }
 
 //Loglevel 函数
-const char* LogLevel::Tostring(LogLevel::Level level){
-    switch (level)
-    {
-#define XX(name);
-    case : LogLevel::name: \
+const char* LogLevel::ToString(LogLevel::Level level){
+    switch (level){
+#define XX(name) \
+    case LogLevel::name: \
         return #name; \
         break;
     
@@ -106,7 +112,7 @@ const char* LogLevel::Tostring(LogLevel::Level level){
     }
     return "UNKNOW";    //这句话永远不会执行，只是为了语法检查
 }
-LogLevel::Level Loglevel::FromString(const std::string& str){
+LogLevel::Level LogLevel::FromString(const std::string& str){
     #define XX(level, v) \
     if(str == #v) { \
         return LogLevel::level; \
@@ -127,20 +133,6 @@ LogLevel::Level Loglevel::FromString(const std::string& str){
 }
 
 //LogEvent 函数
-LogEvent::LogEvent(std::shared_ptr<Logger> logger, LogLevel::Level level
-            ,const char* file, int32_t line, uint32_t elapse
-            ,uint32_t thread_id, uint32_t fiber_id, uint64_t time
-            ,const std::string& thread_name)
-            :m_looger(logger),
-            m_level(level),
-            m_file(file),
-            m_line(line),
-            m_elapse(elapse),
-            m_threadId(thread_id),
-            m_fiberId(fiber_id),
-            m_time(time),
-            m_threadName(thread_name){
-}
 void LogEvent::format(const char* fmt, ...){
     va_list al;
     va_start(al, fmt);
@@ -162,7 +154,7 @@ LogFormatter::LogFormatter(const std::string& pattern)
         init();
 }
 
-std::string Logformatter::format(std::shared_ptr<Logger> logger, LogLevel::Level level, LogEvent::ptr event){
+std::string LogFormatter::format(std::shared_ptr<Logger> logger, LogLevel::Level level, LogEvent::ptr event){
     std::stringstream ss;
     for(auto i : m_items){                      //遍历成员: items数组, 每个item分别调用自己的format()
         i->format(ss, logger, level, event);    //作用：调用“成员类”的同名函数，来对event内容做各种解析
@@ -177,8 +169,8 @@ std::ostream& LogFormatter::format(std::ostream& ofs, std::shared_ptr<Logger> lo
 }
 void LogFormatter::init() {
     //vec和 m_items 用emplace_back 替代 push_back，这样可以避免临时对象的构造和拷贝，提高性能
-    std::vector<std::tuple<std::string_view, std::string_view, int>> vec;
-    std::string_view nstr;      //string_view 相较于 string ，它不会创建临时对象，只有一个指针和长度的信息---更快
+    std::vector<std::tuple<std::string, std::string, int>> vec;
+    std::string nstr;      //string_view 相较于 string ，它不会创建临时对象，只有一个指针和长度的信息---更快 , 但是要修改之前的函数，所以算了
 
     for (size_t i = 0; i < m_pattern.size(); ++i) {
         if (m_pattern[i] != '%') {
@@ -197,8 +189,8 @@ void LogFormatter::init() {
         int fmt_status = 0;
         size_t fmt_begin = 0;
 
-        std::string_view str;
-        std::string_view fmt;
+        std::string str;
+        std::string fmt;
 
         while (n < m_pattern.size()) {
             if (!fmt_status && (!isalpha(m_pattern[n]) && m_pattern[n] != '{' && m_pattern[n] != '}')) {
@@ -232,27 +224,27 @@ void LogFormatter::init() {
 
         if (fmt_status == 0) {
             if (!nstr.empty()) {
-                vec.emplace_back(nstr, std::string_view(), 0);
-                nstr = std::string_view();
+                vec.emplace_back(nstr, std::string(), 0);
+                nstr = std::string();
             }
             vec.emplace_back(str, fmt, 1);
             i = n - 1;
         } else if (fmt_status == 1) {
-            LOG_ERROR << "Pattern parse error: " << m_pattern << " - " << m_pattern.substr(i);
+            std::cout << "Pattern parse error: " << m_pattern << " - " << m_pattern.substr(i);
             m_error = true;
             vec.emplace_back("<<pattern_error>>", fmt, 0);
         }
     }
 
     if (!nstr.empty()) {
-        vec.emplace_back(nstr, std::string_view(), 0);
+        vec.emplace_back(nstr, std::string(), 0);
     }
     //定义了一个静态的无序哈希表 s_format_items，用于存储日志格式的处理方式。--->原来是map，线性查找效率较低
-    static std::unordered_map<std::string_view, std::function<FormatItem::ptr(std::string_view)> > s_format_items = {
+    static std::unordered_map<std::string, std::function<FormatItem::ptr(std::string)> > s_format_items = {
 #define XX(str, C) \
-        {#str, [](std::string_view fmt) { return FormatItem::ptr(new C(fmt));}}
+        {#str, [](std::string fmt) { return FormatItem::ptr(new C(fmt));}}
 
-        XX(m, MessageFormatItem),           // m: 消息   --->如果不用宏，则展开：{ "m", [](std::string_view fmt) { return FormatItem::ptr(new MessageFormatItem(fmt)); } }
+        XX(m, MessageFormatItem),           // m: 消息   --->如果不用宏，则展开：{ "m", [](std::string fmt) { return FormatItem::ptr(new MessageFormatItem(fmt)); } }
         XX(p, LevelFormatItem),             // p: 日志级别
         XX(r, ElapseFormatItem),            // r: 累计毫秒数
         XX(c, NameFormatItem),              // c: 日志名称
@@ -271,7 +263,7 @@ void LogFormatter::init() {
         if (std::get<2>(i) == 0) {
             m_items.emplace_back(FormatItem::ptr(new StringFormatItem(std::string(std::get<0>(i)))));
         } else {
-            auto it = s_format_items.find(std::string_view(std::get<0>(i).data(), std::get<0>(i).size()));
+            auto it = s_format_items.find(std::string(std::get<0>(i).data(), std::get<0>(i).size()));
             if (it == s_format_items.end()) {
                 std::cout << "Pattern parse error: " << m_pattern << " - %" << std::get<0>(i);
                 m_error = true;
@@ -299,15 +291,15 @@ LogFormatter::ptr LogAppender::getFormatter(){
 }
 
 /// stdout  LogAppender 函数
-void StdoutLogAppender::log(Logger::ptr logger, LogLevel::Level level, LogEvent::ptr event) {
+void StdoutLogAppender::log(std::shared_ptr<Logger> logger, LogLevel::Level level, LogEvent::ptr event) {
     if(level >= m_level) {
         //MutexType::Lock lock(m_mutex);
         m_formatter->format(std::cout, logger, level, event);   //format()第一个参数是os, 这里就直接输出到屏幕上
     }
 }
-std::string StdoutLogAppender::toYamlString() {
-    /*待加入*/
-}
+// std::string StdoutLogAppender::toYamlString() {
+//     /*待加入*/
+// }
 
 /// file    LogAppender 函数
 FileLogAppender::FileLogAppender(const std::string& filename)
@@ -330,16 +322,16 @@ void FileLogAppender::log(std::shared_ptr<Logger> logger, LogLevel::Level level,
             reopen();
             m_lastTime = now;
         }
-        MutexType::Lock lock(m_mutex);
+        //MutexType::Lock lock(m_mutex);
         //if(!(m_filestream << m_formatter->format(logger, level, event))) {
         if(!m_formatter->format(m_filestream, logger, level, event)) {
             std::cout << "error" << std::endl;
         }
     }
 }
-std::string FileLogAppender::toYamlString() {
-    /*待加入*/
-}
+// std::string FileLogAppender::toYamlString() {
+//     /*待加入*/
+// }
 
 //LoggerManager 函数
 LoggerManager::LoggerManager() {
@@ -365,9 +357,9 @@ Logger::ptr LoggerManager::getLogger(const std::string& name) {
 void LoggerManager::init() {
     /*空*/
 }
-std::string LoggerManager::toYamlString() {
-    /*待加入*/
-}
+// std::string LoggerManager::toYamlString() {
+//     /*待加入*/
+// }
 
 
 

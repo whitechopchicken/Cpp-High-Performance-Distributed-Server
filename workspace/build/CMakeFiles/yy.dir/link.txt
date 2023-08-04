@@ -1,0 +1,1 @@
+/usr/bin/c++ -fPIC  -rdynamic -O3 -g -std=c++17 -Wall -Wno-deprecated -Werror -Wno-unused-function -shared -Wl,-soname,libyy.so -o ../lib/libyy.so CMakeFiles/yy.dir/src/logger.cpp.o 
