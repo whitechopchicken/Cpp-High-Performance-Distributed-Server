@@ -7,6 +7,87 @@
 #include <vector>
 #include <map>
 #include <stdarg.h>
+#include "thread.h"
+
+/**
+ * @brief 使用流式方式将日志级别level的日志写入到logger
+ */
+#define YY_LOG_LEVEL(logger, level) \
+    if(logger->getLevel() <= level) \
+        yy::LogEventWrap(yy::LogEvent::ptr(new yy::LogEvent(logger, level, \
+                        __FILE__, __LINE__, 0, yy::GetThreadId(),\
+                yy::GetFiberId(), time(0), yy::Thread::GetName()))).getSS()
+
+/**
+ * @brief 使用流式方式将日志级别debug的日志写入到logger
+ */
+#define YY_LOG_DEBUG(logger) YY_LOG_LEVEL(logger, yy::LogLevel::DEBUG)
+
+/**
+ * @brief 使用流式方式将日志级别info的日志写入到logger
+ */
+#define YY_LOG_INFO(logger) YY_LOG_LEVEL(logger, yy::LogLevel::INFO)
+
+/**
+ * @brief 使用流式方式将日志级别warn的日志写入到logger
+ */
+#define YY_LOG_WARN(logger) YY_LOG_LEVEL(logger, yy::LogLevel::WARN)
+
+/**
+ * @brief 使用流式方式将日志级别error的日志写入到logger
+ */
+#define YY_LOG_ERROR(logger) YY_LOG_LEVEL(logger, yy::LogLevel::ERROR)
+
+/**
+ * @brief 使用流式方式将日志级别fatal的日志写入到logger
+ */
+#define YY_LOG_FATAL(logger) YY_LOG_LEVEL(logger, yy::LogLevel::FATAL)
+
+/**
+ * @brief 使用格式化方式将日志级别level的日志写入到logger
+ */
+#define YY_LOG_FMT_LEVEL(logger, level, fmt, ...) \
+    if(logger->getLevel() <= level) \
+        yy::LogEventWrap(yy::LogEvent::ptr(new yy::LogEvent(logger, level, \
+                        __FILE__, __LINE__, 0, yy::GetThreadId(),\
+                yy::GetFiberId(), time(0), yy::Thread::GetName()))).getEvent()->format(fmt, __VA_ARGS__)
+
+/**
+ * @brief 使用格式化方式将日志级别debug的日志写入到logger
+ */
+#define YY_LOG_FMT_DEBUG(logger, fmt, ...) YY_LOG_FMT_LEVEL(logger, yy::LogLevel::DEBUG, fmt, __VA_ARGS__)
+
+/**
+ * @brief 使用格式化方式将日志级别info的日志写入到logger
+ */
+#define YY_LOG_FMT_INFO(logger, fmt, ...)  YY_LOG_FMT_LEVEL(logger, yy::LogLevel::INFO, fmt, __VA_ARGS__)
+
+/**
+ * @brief 使用格式化方式将日志级别warn的日志写入到logger
+ */
+#define YY_LOG_FMT_WARN(logger, fmt, ...)  YY_LOG_FMT_LEVEL(logger, yy::LogLevel::WARN, fmt, __VA_ARGS__)
+
+/**
+ * @brief 使用格式化方式将日志级别error的日志写入到logger
+ */
+#define YY_LOG_FMT_ERROR(logger, fmt, ...) YY_LOG_FMT_LEVEL(logger, yy::LogLevel::ERROR, fmt, __VA_ARGS__)
+
+/**
+ * @brief 使用格式化方式将日志级别fatal的日志写入到logger
+ */
+#define YY_LOG_FMT_FATAL(logger, fmt, ...) YY_LOG_FMT_LEVEL(logger, yy::LogLevel::FATAL, fmt, __VA_ARGS__)
+
+/**
+ * @brief 获取主日志器
+ */
+#define YY_LOG_ROOT() yy::LoggerMgr::GetInstance()->getRoot()
+
+/**
+ * @brief 获取name的日志器
+ */
+#define YY_LOG_NAME(name) yy::LoggerMgr::GetInstance()->getLogger(name)
+
+
 
 
 namespace yy{
@@ -36,6 +117,8 @@ public:
 class LogEvent{
 public:
     typedef std::shared_ptr<LogEvent> ptr;
+    //为了通过测试，写了个默认构造
+    LogEvent();
     LogEvent(std::shared_ptr<Logger> logger, LogLevel::Level level
             ,const char* file, int32_t line, uint32_t elapse
             ,uint32_t thread_id, uint32_t fiber_id, uint64_t time

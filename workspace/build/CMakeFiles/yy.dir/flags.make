@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = -Dyy_EXPORTS
 
-CXX_INCLUDES = 
+CXX_INCLUDES = -I/home/yyshinidaye/yy/workspace/.
 
 CXX_FLAGS =  -rdynamic -O3 -g -std=c++17 -Wall -Wno-deprecated -Werror -Wno-unused-function -fPIC
 
