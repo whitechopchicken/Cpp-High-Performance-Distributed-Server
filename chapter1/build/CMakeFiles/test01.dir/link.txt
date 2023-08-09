@@ -1,0 +1,1 @@
+/usr/bin/c++  -rdynamic -O3 -ggdb -std=c++17 -Wall -Wno-deprecated -Wno-unused-function -Wno-builtin-macro-redefined -rdynamic CMakeFiles/test01.dir/tests/test.cpp.o -o ../bin/test01  -Wl,-rpath,/home/yyshinidaye/yy/chaptor1/lib ../lib/libyy.so 

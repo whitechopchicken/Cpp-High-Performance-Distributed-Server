@@ -98,11 +98,31 @@ static LogIniter __log_init;
 //实现日志配置解析
 ```
 
->p18 
+>p18  日志系统整合03 &emsp; yaml映射到log的配置
+代码部分：  log.c关于class LexicalCast<>偏特化&emsp;各种::toYamlString()  
+test_config.cc &emsp;  log.yml  
 
-## 协程库封装
+>p19  
+```cpp
+//作者在这里完善Logger::addAppender() 和 delAppender() ，弹幕说可以改进~用一个flag标志就搞定了
+```
+>*p20 类图，总结之前的log各种类之间的关系 
 
-## socket函数库
+## 线程模块
+
+## 协程模块
+
+## IO协程调度模块
+
+## Hook模块
+
+## Socket模块
+
+## ByteArray序列化模块
+
+## TcpServer模块
+
+## Stream模块
 
 ## http协议开发
 
