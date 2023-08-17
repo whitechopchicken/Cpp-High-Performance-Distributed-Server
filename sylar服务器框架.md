@@ -110,6 +110,12 @@ test_config.cc &emsp;  log.yml
 
 ## 线程模块
 
+>p22 mutex 和 信号量semaphore  
+为什么不用c++11 的std::thread? 因为它只有一种互斥量，没有读写分离的方式&emsp; 弹幕说c++17支持 std::shared_mutex  
+```cpp
+//弹幕“信号量感觉不如条件变量好用” == 虽然我也只学了条件变量~_~std::condition_variable  写了个 Semaphore::wait() 和 Semaphore::nority() 
+//没有消息就wait()  有消息就notify() 唤醒一个线程 
+```
 ## 协程模块
 
 ## IO协程调度模块
