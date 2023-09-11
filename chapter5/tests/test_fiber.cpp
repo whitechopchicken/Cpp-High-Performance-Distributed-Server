@@ -1,7 +1,7 @@
 #include "../src/yy.h"
 /**/
 
-yy::Logger::ptr g_logger = YY_GET_ROOT();
+yy::Logger::ptr g_logger = YY_LOG_ROOT();
 
 void run_in_fiber() {
     YY_LOG_INFO(g_logger) << "run_in_fiber begin";

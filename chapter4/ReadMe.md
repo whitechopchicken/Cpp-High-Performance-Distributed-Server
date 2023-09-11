@@ -2,9 +2,10 @@
 
 ## 四、26-29课
 
-## 协程模块
+## 协程模块  服务器框架的核心！
 
 ### 1) 封装assert
+> 系统的宏只能assert打印出它在哪一行
 
 > 封装了assert.h断言，实现断言后能够打印出函数栈的信息，使用了execinfo.h中backtrace()和backtrace_symbols()两个函数
 >
@@ -36,14 +37,17 @@
 
 
 
-### 2)  协程
+### 2)  协程-->对于IO密集型服务器有很大优势，对于计算型，并没有
 
 > 默认在线程中起的第一个协程为主协程，子协程每次调用完毕后都回到主协程，由主协程发起每次调用
->
-> 类中包含：ucontext_t结构体，其中uc_link表示上下文下一个调度的协程，uc_stack.ss_sp表示协程栈的内存地址，uc_stack.ss_size表示协程栈的大小
->
-> 包含协程状态，INIT初始，HOLD挂起，EXEC执行，TERM结束，READY准备，EXCEPT出错，以及协程对应的执行函数
+>  
+>   
 
+> 类中包含：ucontext_t结构体，其中uc_link表示上下文下一个调度的协程，uc_stack.ss_sp表示协程栈的内存地址，uc_stack.ss_size表示协程栈的大小
+>  
+
+> 包含协程状态，INIT初始，HOLD挂起，EXEC执行，TERM结束，READY准备，EXCEPT出错，以及协程对应的执行函数
+ 
 ```c++
 #ifndef __SYLAR_FIBER_H__
 #define __SYLAR_FIBER_H__

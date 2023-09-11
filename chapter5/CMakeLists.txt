@@ -20,7 +20,8 @@ set(LIB_SRC
     src/thread.cpp
     src/config.cpp
     src/fiber.cpp
-    )
+    src/scheduler.cpp
+    ) 
 #头文件会自己去找？
 
 add_library(yy SHARED ${LIB_SRC})  #创建动态链接库 yy ，资源文件是LIB_SRC
@@ -56,6 +57,11 @@ add_executable(test_fiber tests/test_fiber.cpp "${LIBS}")
 add_dependencies(test_fiber yy)
 force_redefine_file_macro_for_sources(test_fiber)
 target_link_libraries(test_fiber ${LIB_LIB})
+
+add_executable(test_scheduler tests/test_scheduler.cpp "${LIBS}")
+add_dependencies(test_scheduler yy)
+force_redefine_file_macro_for_sources(test_scheduler)
+target_link_libraries(test_scheduler ${LIB_LIB})
 
 SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 SET(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)

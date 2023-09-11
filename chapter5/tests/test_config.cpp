@@ -33,24 +33,24 @@ yy::ConfigVar<std::unordered_map<std::string, int> >::ptr g_str_int_unmap_value_
 
 void print_yaml(const YAML::Node& node, int level){
     if(node.IsScalar()){
-        YY_LOG_INFO(YY_GET_ROOT()) << std::string(level * 4, ' ') 
+        YY_LOG_INFO(YY_LOG_ROOT()) << std::string(level * 4, ' ') 
             << node.Scalar() << " - " << node.Type() << " - " << level;
     }
     else if(node.IsNull()){
-        YY_LOG_INFO(YY_GET_ROOT()) << std::string(level * 4, ' ') 
+        YY_LOG_INFO(YY_LOG_ROOT()) << std::string(level * 4, ' ') 
             << "NULL - " << node.Type() <<level;
     }
     else if(node.IsMap()){
         for(auto it = node.begin();
                 it != node.end(); ++it){
-            YY_LOG_INFO(YY_GET_ROOT()) << std::string(level * 4, ' ') 
+            YY_LOG_INFO(YY_LOG_ROOT()) << std::string(level * 4, ' ') 
                 << it->first << " - " << it->second.Type() << " - " <<level;
             print_yaml(it->second, level + 1);
         }
     }
     else if(node.IsSequence()){
         for(size_t i = 0; i < node.size(); ++i){
-            YY_LOG_INFO(YY_GET_ROOT()) << std::string(level * 4, ' ') 
+            YY_LOG_INFO(YY_LOG_ROOT()) << std::string(level * 4, ' ') 
                 << i << " - " << node[i].Type() << " - " <<level;
             print_yaml(node[i], level + 1);
         }
@@ -62,28 +62,28 @@ void test_yaml(){
 
     print_yaml(root, 0);
 
-    //YY_LOG_INFO(YY_GET_ROOT()) << root;
+    //YY_LOG_INFO(YY_LOG_ROOT()) << root;
 }
 
 void test_config() {
-    YY_LOG_INFO(YY_GET_ROOT()) << "before:" << g_int_value_config->getValue();
-    YY_LOG_INFO(YY_GET_ROOT()) << "before:" << g_float_value_config->getValue();
+    YY_LOG_INFO(YY_LOG_ROOT()) << "before:" << g_int_value_config->getValue();
+    YY_LOG_INFO(YY_LOG_ROOT()) << "before:" << g_float_value_config->getValue();
 #define XX(g_var, name, prefix) \
     {   \
         auto& v = g_var->getValue();    \
         for(auto& i : v){   \
-            YY_LOG_INFO(YY_GET_ROOT()) << #prefix " " #name " : " << i;    \
+            YY_LOG_INFO(YY_LOG_ROOT()) << #prefix " " #name " : " << i;    \
         }   \
-        YY_LOG_INFO(YY_GET_ROOT()) << #prefix " " #name " yaml: " << g_var->toString();    \
+        YY_LOG_INFO(YY_LOG_ROOT()) << #prefix " " #name " yaml: " << g_var->toString();    \
     }
 
 #define XX_M(g_var, name, prefix) \
     {   \
         auto& v = g_var->getValue();    \
         for(auto& it : v){   \
-            YY_LOG_INFO(YY_GET_ROOT()) << #prefix " " #name " : (" << it.first << " - " << it.second << ")";    \
+            YY_LOG_INFO(YY_LOG_ROOT()) << #prefix " " #name " : (" << it.first << " - " << it.second << ")";    \
         }   \
-        YY_LOG_INFO(YY_GET_ROOT()) << #prefix " " #name " yaml: " << g_var->toString();    \
+        YY_LOG_INFO(YY_LOG_ROOT()) << #prefix " " #name " yaml: " << g_var->toString();    \
     }
     XX(g_int_vec_value_config, int_vec, before);
     XX(g_int_list_value_config, int_list, before);
@@ -97,8 +97,8 @@ void test_config() {
     YAML::Node root = YAML::LoadFile("/home/yyshinidaye/yy/chapter3/bin/conf/test.yaml");    // /home/ubuntu
     yy::Config::LoadFromYaml(root);
 
-    YY_LOG_INFO(YY_GET_ROOT()) << "after:" << g_int_value_config->getValue();
-    YY_LOG_INFO(YY_GET_ROOT()) << "after:" << g_float_value_config->getValue();
+    YY_LOG_INFO(YY_LOG_ROOT()) << "after:" << g_int_value_config->getValue();
+    YY_LOG_INFO(YY_LOG_ROOT()) << "after:" << g_float_value_config->getValue();
 
     XX(g_int_vec_value_config, int_vec, after);
     XX(g_int_list_value_config, int_list, after);
@@ -175,14 +175,14 @@ public:
 
 
 void test_class(){
-    YY_LOG_INFO(YY_GET_ROOT()) << "before:" << g_person_config->getValue().toString() << " - " << g_person_config->toString();
+    YY_LOG_INFO(YY_LOG_ROOT()) << "before:" << g_person_config->getValue().toString() << " - " << g_person_config->toString();
 #define XX_PM(g_var, prefix)    \
     {   \
         auto x = g_var->getValue();   \
         for(auto& i : x){   \
-            YY_LOG_INFO(YY_GET_ROOT()) << prefix << " : " << i.first << " - " << i.second.toString(); \
+            YY_LOG_INFO(YY_LOG_ROOT()) << prefix << " : " << i.first << " - " << i.second.toString(); \
         }   \
-        YY_LOG_INFO(YY_GET_ROOT()) << prefix << " : size() = " << x.size();  \
+        YY_LOG_INFO(YY_LOG_ROOT()) << prefix << " : size() = " << x.size();  \
     }
     XX_PM(g_person_map_config, "class.map before");
 
@@ -190,27 +190,27 @@ void test_class(){
     {   \
         auto x = g_var->getValue();   \
         for(auto& i:x){ \
-            YY_LOG_INFO(YY_GET_ROOT()) << prefix << " : " << i.first << " = [ ";   \
+            YY_LOG_INFO(YY_LOG_ROOT()) << prefix << " : " << i.first << " = [ ";   \
             for(auto& j:i.second){  \
-                YY_LOG_INFO(YY_GET_ROOT()) << j.toString() << ", ";   \
+                YY_LOG_INFO(YY_LOG_ROOT()) << j.toString() << ", ";   \
             }   \
-            YY_LOG_INFO(YY_GET_ROOT()) << " ] "; \
+            YY_LOG_INFO(YY_LOG_ROOT()) << " ] "; \
         }   \
-        YY_LOG_INFO(YY_GET_ROOT()) << prefix << " : size = " << x.size();     \
+        YY_LOG_INFO(YY_LOG_ROOT()) << prefix << " : size = " << x.size();     \
     }
 
     XXPVM(g_person_vec_map_config, "class.vecmap before");
 
     //注册更改的回调函数
     g_person_config->addListener([](const Person& old_val, const Person& new_val){
-        YY_LOG_INFO(YY_GET_ROOT()) << "old_val = " << old_val.toString() 
+        YY_LOG_INFO(YY_LOG_ROOT()) << "old_val = " << old_val.toString() 
                 << " new_val = " << new_val.toString();
     });
 
     YAML::Node root = YAML::LoadFile("/home/yyshinidaye/yy/chapter3/bin/conf/test.yaml");    // /home/ubuntu
     yy::Config::LoadFromYaml(root);
 
-    YY_LOG_INFO(YY_GET_ROOT()) << "after:" << g_person_config->getValue().toString() << " - " << g_person_config->toString();
+    YY_LOG_INFO(YY_LOG_ROOT()) << "after:" << g_person_config->getValue().toString() << " - " << g_person_config->toString();
     XX_PM(g_person_map_config, "class.map after");
     XXPVM(g_person_vec_map_config, "class.vecmap after");
 }
@@ -224,9 +224,9 @@ void test_log() {
     std::cout << "=======================================" << std::endl;
     std::cout << yy::loggerMgr::GetInstance()->toYamlString() << std::endl;
 
-    YY_LOG_INFO(YY_GET_ROOT()) << "hello yy" << std::endl;
+    YY_LOG_INFO(YY_LOG_ROOT()) << "hello yy" << std::endl;
     system_log->setFormatter("%d - %m%n");
-    YY_LOG_INFO(YY_GET_ROOT()) << "hello yy" << std::endl;
+    YY_LOG_INFO(YY_LOG_ROOT()) << "hello yy" << std::endl;
 
 }
 int main(){
@@ -234,7 +234,7 @@ int main(){
     //test_class();
     test_log();
     yy::Config::Visit([](yy::ConfigVarBase::ptr var) {
-        YY_LOG_INFO(YY_GET_ROOT()) << "name = " << var->getName()
+        YY_LOG_INFO(YY_LOG_ROOT()) << "name = " << var->getName()
                                   << "description = " << var->getDescription()
                                   << "type = " << var->getTypeName() 
                                   << "value = " << var->toString();

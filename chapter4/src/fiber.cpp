@@ -18,6 +18,7 @@ static thread_local Fiber::ptr t_threadFiber = nullptr;
 static ConfigVar<uint32_t>::ptr g_fiber_stack_size = 
     Config::Lookup<uint32_t>("fiber.stack_size", 1024 * 1024, "fiber stack size");
 
+//
 class MallocStackAllocator {
 public:
     static void* Alloc(size_t size) {
@@ -39,8 +40,8 @@ uint64_t Fiber::GetFiberId() {
 
 
 Fiber::Fiber() {
-    m_state = EXEC;
-    SetThis(this);
+    m_state = EXEC; //状态设置为：这个在执行
+    SetThis(this);  //赋值当前的协程
 
     if(getcontext(&m_ctx)) {
         YY_ASSERT2(false, "getcontext");
@@ -107,10 +108,10 @@ void Fiber::reset(std::function<void()> cb) {
 
     m_state = INIT;
 }
-//切换到当前协程执行
+//(从主协程)切换到当前协程执行
 void Fiber::swapIn() {
-    SetThis(this);
-    YY_ASSERT(m_state != EXEC);
+    SetThis(this);  //把自己放到协程里去
+    YY_ASSERT(m_state != EXEC);     
     m_state = EXEC;
     // old --> new
     //主协程 --> 当前协程
@@ -118,7 +119,7 @@ void Fiber::swapIn() {
         YY_ASSERT2(false, "swapcontext");
     }
 }
-//切换到后台执行
+//(当前协程)切换到后台执行
 void Fiber::swapOut() {
     SetThis(t_threadFiber.get());
     //当前协程 --> 主协程

@@ -1,7 +1,7 @@
 #include "../src/yy.h"
 #include<assert.h>
 
-yy::Logger::ptr g_logger = YY_GET_ROOT();
+yy::Logger::ptr g_logger = YY_LOG_ROOT();
 
 void test_assert() {
     YY_LOG_INFO(g_logger) << yy::BacktraceToString(10, 2, "      ");

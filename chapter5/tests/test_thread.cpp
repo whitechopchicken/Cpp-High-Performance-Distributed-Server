@@ -1,7 +1,7 @@
 #include"../src/yy.h"
 #include<unistd.h>
 
-yy::Logger::ptr g_logger1 = YY_GET_ROOT();
+yy::Logger::ptr g_logger1 = YY_LOG_ROOT();
 
 int count = 0;
 //yy::RWMutex s_mutex;
